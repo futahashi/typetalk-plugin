@@ -14,6 +14,7 @@ import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.typetalk.delegate.NotifyDelegate;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -23,11 +24,13 @@ public class TypetalkNotifier extends Notifier {
 
 	public final String name;
 	public final String topicNumber;
+	public final String talkId;
 
 	@DataBoundConstructor
-	public TypetalkNotifier(String name, String topicNumber) {
+	public TypetalkNotifier(String name, String topicNumber, String talkId) {
 		this.name = name;
 		this.topicNumber = topicNumber;
+		this.talkId = talkId;
 	}
 
 	@Override
@@ -38,7 +41,11 @@ public class TypetalkNotifier extends Notifier {
 	@Override
 	public boolean perform(AbstractBuild<?, ?> build, Launcher launcher, BuildListener listener)
 			throws InterruptedException, IOException {
-		new NotifyDelegate(name, Long.valueOf(topicNumber), listener, build).notifyResult();
+				Long talkIdLong = null;
+				if (StringUtils.isNotEmpty(talkId)) {
+					talkIdLong = Long.parseLong(talkId);
+				}
+				new NotifyDelegate(name, Long.valueOf(topicNumber), talkIdLong , listener, build).notifyResult();
 		return true;
 	}
 
